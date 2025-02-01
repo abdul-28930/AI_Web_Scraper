@@ -1,0 +1,12 @@
+streamlit
+langchain-openai>=0.0.2
+langchain-core>=0.1.7
+openai>=1.12.0
+selenium>=4.0.0
+beautifulsoup4
+lxml 
+html5lib
+python-dotenv
+webdriver-manager
+requests
+fake-useragent
