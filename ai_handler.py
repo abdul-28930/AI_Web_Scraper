@@ -16,14 +16,27 @@ def process_content_with_ai(content, user_query):
     chat = init_openai()
     
     messages = [
-        SystemMessage(content="""You are a helpful assistant that analyzes web content. 
-        Extract and summarize relevant information based on the user's query."""),
+        SystemMessage(content="""You are a real estate data extraction assistant. 
+        For each content section, extract ONLY the following information if present:
+        - Location: Specific location/area name
+        - Price: Property price or price range
+        - Property Type: Type of property (apartment, villa, plot, etc.)
+        - Size: Size of the property (sq ft, acres, etc.)
+        - Developer: Name of the developer/builder if mentioned
+        
+        Format your response EXACTLY as:
+        Location: <location>
+        Price: <price>
+        Property Type: <type>
+        Size: <size>
+        Developer: <developer>
+        
+        If any field is not found, leave it empty but keep the field name.
+        Only extract factual information - no summaries or interpretations."""),
         HumanMessage(content=f"""
         Web Content: {content}
         
-        User Query: {user_query}
-        
-        Please analyze the content and provide relevant information based on the query.""")
+        Extract the real estate information from this content.""")
     ]
     
     try:

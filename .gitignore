@@ -28,6 +28,10 @@ wheels/
 
 # Environment variables
 .env
+.aiweb
+/aiweb
+/aiweb/
+/aiweb/*
 
 # IDE specific files
 .idea/

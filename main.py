@@ -2,6 +2,37 @@ import streamlit as st
 from scrape import scrape_website, clean_body_content, split_dom_content
 from ai_handler import process_content_with_ai
 import concurrent.futures
+import pandas as pd
+import io
+
+def convert_to_dataframe(results):
+    """Convert real estate data to a structured DataFrame"""
+    data = []
+    for idx, content in results:
+        # Initialize default values
+        row = {
+            'Section': f'Part {idx}',
+            'Location': '',
+            'Price': '',
+            'Property Type': '',
+            'Size': '',
+            'Developer': ''
+        }
+        
+        # Parse the structured content
+        lines = content.split('\n')
+        for line in lines:
+            if ':' in line:
+                key, value = line.split(':', 1)
+                key = key.strip()
+                value = value.strip()
+                
+                if key in row:
+                    row[key] = value
+        
+        data.append(row)
+    
+    return pd.DataFrame(data)
 
 # Streamlit UI
 st.title("AI Web Scraper")
@@ -69,6 +100,37 @@ if st.session_state.cleaned_content is not None:
             
             # Display results
             st.success("Analysis complete!")
+            
+            # Create a DataFrame from results
+            df = convert_to_dataframe(st.session_state.results)
+            
+            # Add export buttons
+            col1, col2 = st.columns(2)
+            
+            # CSV export
+            csv = df.to_csv(index=False).encode('utf-8')
+            with col1:
+                st.download_button(
+                    label="Download CSV",
+                    data=csv,
+                    file_name="analysis_results.csv",
+                    mime="text/csv"
+                )
+            
+            # Excel export
+            buffer = io.BytesIO()
+            with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+                df.to_excel(writer, index=False, sheet_name='Analysis Results')
+            
+            with col2:
+                st.download_button(
+                    label="Download Excel",
+                    data=buffer.getvalue(),
+                    file_name="analysis_results.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
+            
+            # Display results in expandable sections
             for idx, result in sorted(st.session_state.results):
                 with st.expander(f"Analysis Part {idx}"):
                     st.markdown(result)
